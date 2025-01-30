@@ -1,0 +1,22 @@
+<!--
+  <div *ngIf="weatherData; else loading">
+  <h1>Weather Data:</h1>
+  <pre>{{ convertToJson(weatherData) }}</pre>
+</div>
+
+<ng-template #loading>
+  <p>Loading weather data...</p>
+</ng-template>
+-->
+
+<div>
+  <h1>This is the app.component.html page</h1>
+  <h1>Current weather in {{ city }}, {{ country }}</h1>
+  <h1>Enter the latitude and longitude coordinates of your desired location:</h1>
+  <input type="text" placeholder="longitude" [(ngModel)]="longitude">
+  <input type="text" placeholder="latitude" [(ngModel)]="latitude">
+  <button (click)="updateLatLong()">Enter</button>
+  <p>New latitude: {{ latitude }}</p>
+  <p>New longitude: {{ longitude }}</p>
+  <p>Current Temp: {{ currentTemp }}</p>
+</div>
