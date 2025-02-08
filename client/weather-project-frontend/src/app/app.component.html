@@ -7,16 +7,162 @@
 <ng-template #loading>
   <p>Loading weather data...</p>
 </ng-template>
+
+<script>
+  document.getElementById('signup-form').addEventListener('submit', async (event) => {
+    event.preventDefault(); // Prevent the form from submitting normally
+    
+    // Gather the form data
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    try {
+      // Send a POST request to your backend sign-up endpoint
+      const response = await fetch('http://localhost:5001/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+      
+      const data = await response.json();
+      const messageDiv = document.getElementById('message');
+      
+      if (response.ok) {
+        messageDiv.style.color = 'green';
+        messageDiv.textContent = data.message || 'Sign-up successful!';
+      } else {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = data.message || 'Sign-up failed!';
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      document.getElementById('message').textContent = 'An error occurred. Please try again.';
+    }
+  });
+</script>
 -->
 
 <div>
-  <h1>This is the app.component.html page</h1>
-  <h1>Current weather in {{ city }}, {{ country }}</h1>
-  <h1>Enter the latitude and longitude coordinates of your desired location:</h1>
-  <input type="text" placeholder="longitude" [(ngModel)]="longitude">
-  <input type="text" placeholder="latitude" [(ngModel)]="latitude">
-  <button (click)="updateLatLong()">Enter</button>
-  <p>New latitude: {{ latitude }}</p>
-  <p>New longitude: {{ longitude }}</p>
-  <p>Current Temp: {{ currentTemp }}</p>
+  <!-- App Header Section -->
+  <section>
+    <header>
+      <h1>This web app displays current weather data based on location.<br>
+        If you would like to save one or more locations, please sign up below.
+      </h1>
+      <button (click)="toggleSignUpLogIn()">
+        {{ userReq == 'SignUp' ? 'Login?' : 'Sign Up?' }}
+      </button>
+
+      <div *ngIf="userReq === 'SignUp'" class="signup-container">
+        <h2>Sign Up</h2>
+        <form id="signup-form">
+          <input [(ngModel)]="temp_username" type="text" id="username" name="username" placeholder="Username" required>
+          <input [(ngModel)]="temp_email" type="email" id="email" name="email" placeholder="Email" required>
+          <input [(ngModel)]="temp_password" type="password" id="password" name="password" placeholder="Password" required>
+          <button (click)="userSignUp()" type="submit">Sign Up</button>
+        </form>
+        <h1 *ngIf="userReq === 'SignUp'" [(ngModel)]="signUpResponse">{{ signUpResponse }}</h1>
+        <div class="message" id="message"></div>
+      </div>
+      <div *ngIf="userReq === 'LogIn'">
+        <form (submit)="userLogIn()">
+          <input type="text" placeholder="Username" name="login_name" [(ngModel)]="temp_username">
+          <input type="password" placeholder="Password" name="login_password" [(ngModel)]="temp_password">
+          <button type="submit">Log In</button>
+        </form>
+        <h1 *ngIf="userReq === 'LogIn'" [(ngModel)]="logInResponse">{{ logInResponse }}</h1>
+      </div>
+      
+    </header>
+  </section>
+
+  <!-- Main App Body Section-->
+  <section class="search-section">
+    <div>
+      <div>
+        <!-- Toggle Search Method Button -->
+        <button class="toggle-button" (click)="toggleSearchMode()">
+          Search by {{ searchMethod == 'city' ? 'Coordinates' : 'City' }}
+        </button>
+      </div>
+        
+      <!-- Input Fields -->
+      <div>
+        <!-- Search by City -->
+        <div *ngIf="searchMethod === 'city'">
+          <label>Enter a city name</label>
+          <input type="text" placeholder="Enter city name" [(ngModel)]="temp_city">
+          <label>Enter a country name</label>
+          <select placeholder="Enter country name" [(ngModel)]="temp_country">
+            <option value="" disabled selected>Select a country</option>
+            <option *ngFor="let country of country_list" [value]="country">{{ country }}</option>
+          </select>
+        </div>
+  
+  
+        <!-- Search by Coordinates -->
+        <div *ngIf="searchMethod === 'coordinates'">
+          <label>Latitude</label>
+          <input type="text" placeholder="Latitude" [(ngModel)]="temp_lat">
+          <label>Longitude</label>
+          <input type="text" placeholder="Longitude" [(ngModel)]="temp_long">
+        </div>
+      </div>    
+    </div>
+
+    <div>
+      <!-- Search Enter Button -->
+      <div>
+        <button class="search-btn" (click)="onSearch()">Enter</button>  
+      </div>
+    </div>
+  </section>
+  
+  
+  <section>
+    <!-- Display any errors -->
+    <div *ngIf="errorMessage">
+      <h1> {{ this.displayedError }} </h1>
+    </div>
+
+    <!-- Display Weather Data -->
+    <div class="card" *ngIf="weatherData && !errorMessage">
+      <div *ngIf="city && country">
+        <h1>{{ city }}, {{ country }}</h1>
+        <p>Current Temp: {{ currentTemp }} F</p>
+      </div>
+
+      <div *ngIf="!city && !country">
+        <h1>No city at this location, likely ocean.</h1>
+        <p>Current Temp: {{ currentTemp }} F</p>
+      </div>
+    </div>
+  </section>
+  
+  <!--
+  <div *ngIf="searchMethod === 'coordinates'">
+    <p>New latitude: {{ latitude }}</p>
+    <p>New longitude: {{ longitude }}</p>
+  </div>
+  -->
+
+  
+    <!--
+      <div class="weather-cards-container">
+
+      <div class="weather-card">
+        <div class="weather-header">
+          <h3>{{ weatherData.name }}</h3>
+          <img [src]="'https://openweathermap.org/img/wn/' + weatherData.weather[0].icon + '@2x.png'" alt="Weather Icon"> 
+        </div>
+
+        <div class="weather-body">
+          <h2>{{ currentTemp }}°F</h2>
+          <p class="weather-card-p">{{ weatherData.weather[0].description }}</p>
+        </div>
+      </div>
+    </div>
+    
+    -->
 </div>
